@@ -1,11 +1,32 @@
 #!/bin/bash
+#============================================================================
+#title          :jiracheck
+#description    :This script is used to check if tickets are in closed status
+#author         :Roman Rakhmanin
+#date           :20160428
+#version        :0.1
+#usage          :./jiracheck
+#notes          :Slow version, makes api connection for each ticket
+#bash_version   :GNU bash, version 4.3.11(1)-release (x86_64-pc-linux-gnu)
+##===========================================================================
+##    Usage
+##  -h  Shows current message  
+##  -r [filename]  Reads the file specified 
+##
+## [filename] should contain jira ticket keys, separated by newline 
+## ex [filename]: 
+## SUPTOS-23556
+## MSTOS-2356  
+## SOMETRACKER-2144124 
+## Usage Ex:                                                            
+## \$ ./${script} -r tickets.txt 
+##
+##===========================================================================
+#============================================================================
 
-#script_name
 
-#Default variables 
-#USER='default';
-#PASSWORD='default';
-JIRA_URL='https://tosjira.iteclientsys.local'
+
+JIRA_URL='testjira.lo' #put here your jira url
 
 all_tickets=();
 open_tickets=();
@@ -16,24 +37,7 @@ nonexisting_tickets=();
 #Usage help
 helpFunction () {
     script=$(basename "$0");
-    echo "
-#######################################################################
-#                                                                      #
-# -h ------------------------------------------ Shows current message  #
-# -r [filename] ---------------------------- Reads the file specified  #
-#                                                                      #
-# [filename] should contain jira ticket keys, separated by newline     #
-# ex [filename]:                                                       #
-SUPTOS-23556                                                           #
-MSTOS-2356                                                             #
-SOMETRACKER-2144124                                                    #
-#                                                                      #
-#                                                                      #
-# Usage Ex:                                                            #
-\$ ./${script} -r tickets.txt                                           #  
-#                                                                      #
-######################################################################
-";
+    head -n28 $PWD/${script} | grep "^##" | sed 's/^##/#/g';
 }
 
 
@@ -48,7 +52,7 @@ loginInfo () {
     local result="$(curl --silent -k -D- -u "${USER}":"${PASSWORD}" -X GET -H "Content-Type: application/json" "${JIRA_URL}")";
     if ! grep -q "X-Seraph-LoginReason: OK" <<< "$result"
         then
-            echo "Credentials are wrong! Please, try again!";
+           [ -z $result ] && echo "Jira \"${JIRA_URL}\" is not available!" || echo "Credentials are wrong!"
             loginInfo;
         else echo "Successful!"
     fi
@@ -67,9 +71,6 @@ spreadIssues () {
             else
                 local ticket_date=$(date --date=$( echo "$result" | grep -Po "\d{4}-\d{2}-\d{2}") "+%s");
                 local current_date=$(date +"%s")
-                #diff testing
-                #local diff=$(( (current_date - ticket_date) / 86400 ))
-                #echo  "ticket_date: ${ticket_date}; current_date: $current_date; ${1}: $diff"
                 if [[ $(( (current_date - ticket_date)/86400 ))  -gt 30 ]]; then
                     older_closed_tickets+=("${1}");
                 else
@@ -82,7 +83,7 @@ spreadIssues () {
 }
 
 #if no options specified, set options to -h
-if [ $# -eq 0 ]; then set -- "-h";fi
+[ $# -eq 0 ] && set -- "-h"
 
 #and main options check. If -a with filename specified, 
 while getopts ":hr:" opt; do
@@ -124,7 +125,12 @@ loginInfo;
 echo "Proceeding with tickets:";
 counter=0; #used just to beautify output
 tickets_amount=${#all_tickets[@]}; #If we don't create new variable, it'll be counted each iteration
-for i in "${all_tickets[@]}"; do ((counter+=1)); echo -ne "\rProcessing ${counter} out of ${tickets_amount}: $i"; spreadIssues $i; done
+for i in "${all_tickets[@]}"; 
+do 
+    ((counter+=1)); 
+    echo -ne "\rProcessing ${counter} out of ${tickets_amount}: $i";
+    spreadIssues $i; 
+done
 
 echo -e "\nOpen:"
 echo "${open_tickets[@]}";
