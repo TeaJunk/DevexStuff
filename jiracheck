@@ -28,7 +28,7 @@
 
 
 
-JIRA_URL='https://jira.local' #put here your jira url
+JIRA_URL='https://tosjira.iteclientsys.local' #put here your jira url
 
 all_tickets=();
 open_tickets=();
@@ -147,3 +147,17 @@ echo "Closed in a near past:"
 echo "${closed_tickets[@]}";
 echo "Don't even exist:"
 echo "${nonexisting_tickets[@]}";
+
+SUPTOS_STRING='SUPTOS('
+MSTOS_STRING='MSTOS('
+SUPTP_STRING='SUPTP('
+for ticket in ${older_closed_tickets[@]}
+do
+  eval ${ticket//[!A-Z]*/'_STRING'}+="${ticket##*[!0-9]}\|"
+ # ${ticket//[!A-Z]*/'_STRING'}='test'
+done
+SUPTOS_STRING+=$'\b)'
+MSTOS_STRING+=$'\b)'
+SUPTP_STRING+=$'\b)'
+
+echo "$SUPTOS_STRING $MSTOS_STRING $SUPTP_STRING"
