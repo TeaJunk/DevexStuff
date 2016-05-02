@@ -188,10 +188,6 @@ echo "${nonexisting_tickets[@]}";
 #==============================FNAME_PATTERN_GENERATOR======================================
 echo "Generating regex filename pattern....."
 
-for ticket in ${older_closed_tickets[@]}
-do
-  eval ${ticket//[!A-Z]*/'_STRING'}+="${ticket##*[!0-9]}\|"
-done
 for proj in ${PROJECTS[@]}
 do
  proj_enable=0
