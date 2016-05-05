@@ -47,7 +47,7 @@ fi
 
 #=============================CONFIGURATION===================================
 JIRA_URL='https://jira.local' #put here your jira url
-PROJECTS=('SUPTOS' 'SUPTP' 'MSTOS') #list of projects you're working on 
+PROJECTS=('AOL' 'HR' 'PROD') #list of projects you're working on 
 PROJECT_STRINGS=() #Default project removal strings. You can add your own,
 #+and it'll be added to regex list, but be careful
 #============================================================================
@@ -63,7 +63,7 @@ nonexisting_tickets=();
 #Usage help
 helpFunction () {
     script=$(basename "$0");
-    head -n28 $PWD/${script} | grep "^##" | sed 's/^##/#/g';
+    head -n40 $PWD/${script} | grep "^##" | sed 's/^##/#/g';
 }
 
 
