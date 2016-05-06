@@ -85,10 +85,8 @@ echo -n "${result::-1}"
 
 #Login and check credentials
 loginInfo () {
-    echo -n "Your jira login?:"
-    read USER;
-    echo -n "Your password?:"
-    read -rs PASSWORD;
+    read -p "Your jira login?: " USER;
+    read -rs -p "Your password?: " PASSWORD;
     echo -e "\nChecking..."
     local result="$(curl --silent -k -D- -u "${USER}":"${PASSWORD}" -X GET -H "Content-Type: application/json" "${JIRA_URL}")";
     if ! grep -q "X-Seraph-LoginReason: OK" <<< "$result"
